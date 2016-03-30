@@ -567,8 +567,8 @@ class Group(GroupMixin, Command):
             ctx.subcommand_passed = trigger
             if trigger in self.commands:
                 ctx.invoked_subcommand = self.commands[trigger]
-            else:
-                ctx.invoked_subcommand = None
+        else:
+            ctx.invoked_subcommand = None
 
         if early_invoke:
             injected = inject_context(ctx, self.callback)
