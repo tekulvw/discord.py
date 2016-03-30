@@ -562,13 +562,14 @@ class Group(GroupMixin, Command):
         previous = view.index
         view.skip_ws()
         trigger = view.get_word()
+        previous_invoked = ctx.invoked_subcommand
 
         if trigger:
             ctx.subcommand_passed = trigger
             if trigger in self.commands:
                 ctx.invoked_subcommand = self.commands[trigger]
-        elif view.index == previous:
-            return
+            else:
+                ctx.invoked_subcommand = None
 
         if early_invoke:
             injected = inject_context(ctx, self.callback)
@@ -581,11 +582,14 @@ class Group(GroupMixin, Command):
             # undo the trigger parsing
             view.index = previous
             view.previous = previous
+            ctx.invoked_subcommand = previous_invoked
             valid = self._verify_checks(ctx) and (yield from self._parse_arguments(ctx))
             if not valid:
                 return
             injected = inject_context(ctx, self.callback)
             yield from injected(*ctx.args, **ctx.kwargs)
+        else:
+            ctx.invoked_subcommand = previous_invoked
 
 # Decorators
 
