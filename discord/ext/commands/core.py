@@ -567,19 +567,14 @@ class Group(GroupMixin, Command):
             ctx.subcommand_passed = trigger
             if trigger in self.commands:
                 ctx.invoked_subcommand = self.commands[trigger]
-            else:
-                ctx.invoked_subcommand = None
-        else:
-            ctx.invoked_subcommand = None
 
         if early_invoke:
             injected = inject_context(ctx, self.callback)
             yield from injected(*ctx.args, **ctx.kwargs)
 
-        if ctx.invoked_subcommand:
+        if trigger and ctx.invoked_subcommand:
             ctx.invoked_with = trigger
-            ctx_copy = ctx
-            yield from ctx.invoked_subcommand.invoke(ctx_copy)
+            yield from ctx.invoked_subcommand.invoke(ctx)
         elif not early_invoke:
             # undo the trigger parsing
             view.index = previous
